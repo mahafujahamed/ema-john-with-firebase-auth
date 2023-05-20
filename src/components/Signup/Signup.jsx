@@ -1,16 +1,48 @@
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import './Signup.css';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../Providers/AuthProvider';
 
 const Signup = () => {
 
+    const [error, setError] = useState('');
+    const {createUser} = useContext(AuthContext);
+
     const handleSignup = (event) => {
+        // stop reloading
         event.preventDefault();
 
         const form = event.target;
         const email = form.email.value;
         const password = form.password.value;
-        console.log(email, password);
+        const confirm = form.confirm.value;
+        console.log(email, password, confirm);
+
+        setError('');
+        
+
+        if(password !== confirm) {
+            setError('Passwords do not match');
+            return;
+        }
+        else if(password.length < 6) {
+            setError('Password must be at least 6 characters');
+            return;
+        }
+
+        createUser(email, password)
+        .then(user => {
+            const loggedUser = result.user;
+            console.log(loggedUser);
+            form.reset();
+        }
+        )
+        .catch(error => {
+            console.log(error);
+            setError(error.message);
+        }
+        )
+        
     }
 
     return (
@@ -32,6 +64,7 @@ const Signup = () => {
                 <input className='btn-submit' type="submit" value="Sign Up" />
             </form>
             <p><small>Already have an account? <Link to="/login">Login</Link></small></p>
+            <p className='text-error'>{error}</p>
         </div>
     );
 };
